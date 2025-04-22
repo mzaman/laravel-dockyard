@@ -13,24 +13,27 @@ fi
 # ─────────────────────────────────────────────────────────────
 # Default Configuration (can be overridden before running)
 # ─────────────────────────────────────────────────────────────
+REPOSITORY_URL="git@github.com:mzaman/laravel-boilerplate.git"
+DEFAULT_APP_CODE_RELATIVE_PATH="web"
+DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
 DEFAULT_DB_ROOT_USER="root"
 DEFAULT_DB_ROOT_PASSWORD="root"
 DEFAULT_DB_NAME="cms_db"
-DEFAULT_APP_CODE_RELATIVE_PATH="web"
 DEFAULT_LARAVEL_VERSION="^10"
-DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
-LARADOCK_REPO="https://github.com/laradock/laradock.git"
-LARADOCK_BRANCH="master"
 
-CUSTOM_GIT_REPO="${CUSTOM_GIT_REPO:-}"
-CUSTOM_PRE_COMMAND="${CUSTOM_PRE_COMMAND:-}"
-CUSTOM_POST_COMMAND="${CUSTOM_POST_COMMAND:-}"
+INITIAL_COMMANDS=(
+    "echo 'No pre-install command'"
+)
 
-LARAVEL_PACKAGES=(
-    "barryvdh/laravel-debugbar"
-    "laravel/sanctum"
-    "guzzlehttp/guzzle:^7.0"
-    "spatie/laravel-permission"
+POST_UPDATE_COMMANDS=(
+    "echo 'No post-install command'"
+)
+
+ADDITIONAL_PACKAGES=(
+    # "barryvdh/laravel-debugbar"
+    # "laravel/sanctum"
+    # "guzzlehttp/guzzle:^7.0"
+    # "spatie/laravel-permission"
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -38,24 +41,4 @@ LARAVEL_PACKAGES=(
 # ─────────────────────────────────────────────────────────────
 source "$(dirname "$0")/utils.sh"
 
-# ─────────────────────────────────────────────────────────────
-# Main entrypoint
-# ─────────────────────────────────────────────────────────────
-main() {
-    override_variables
-    clone_laradock
-    copy_custom_configs
-    restart_docker_services
-
-    if [ -n "$CUSTOM_GIT_REPO" ]; then
-        run_custom_project
-    else
-        install_laravel
-    fi
-
-    create_mysql_database
-    configure_laravel_env
-    print_style "✅ Laravel + Docker setup completed successfully!" "success"
-}
-
-main
+init

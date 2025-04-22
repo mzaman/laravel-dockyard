@@ -18,6 +18,27 @@ load_variables() {
     DB_NAME="${DB_NAME:-$DEFAULT_DB_NAME}"
     LARAVEL_VERSION="${LARAVEL_VERSION:-$DEFAULT_LARAVEL_VERSION}"
     DOCKER_SERVICES=("${DOCKER_SERVICES[@]:-${DEFAULT_DOCKER_SERVICES[@]}}")
+
+    LARADOCK_REPO="https://github.com/laradock/laradock.git"
+    LARADOCK_BRANCH="master"
+}
+
+init() {
+    override_variables
+    clone_laradock
+    copy_custom_configs
+    restart_docker_services
+
+    if [ -n "$REPOSITORY_URL" ]; then
+        run_custom_project
+    else
+        install_laravel
+    fi
+
+    create_mysql_database
+    configure_laravel_env
+
+    print_style "✅ Laravel + Docker setup completed successfully!" "success"
 }
 
 override_variables() {
@@ -68,34 +89,48 @@ install_laravel() {
     if [ -f "$LOCAL_APP_CODE_PATH_HOST/artisan" ]; then
         print_style "ℹ️ Laravel already installed. Skipping." "warning"
     else
+        run_initial_commands
         execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER && composer create-project --prefer-dist laravel/laravel=\"$LARAVEL_VERSION\" $APP_CODE_RELATIVE_PATH"
+
     fi
 
-    install_laravel_packages
+    install_additional_packages
+    run_post_update_commands
 }
 
-install_laravel_packages() {
-    print_style "📦 Installing additional Laravel packages..." "info"
-    for package in "${LARAVEL_PACKAGES[@]}"; do
-        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && COMPOSER_ALLOW_SUPERUSER=1 composer require $package --no-interaction || true"
+run_initial_commands() {
+    for cmd in "${INITIAL_COMMANDS[@]}"; do
+        print_style "⚙ Running pre-install command: $cmd" "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $cmd"
+    done
+}
+
+run_post_update_commands() {
+    for cmd in "${POST_UPDATE_COMMANDS[@]}"; do
+        print_style "⚙ Running post-install command: $cmd" "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $cmd"
     done
 }
 
 run_custom_project() {
-    print_style "🔗 Cloning custom repo: $CUSTOM_GIT_REPO" "info"
-    git clone "$CUSTOM_GIT_REPO" "$LOCAL_APP_CODE_PATH_HOST"
+    print_style "🔗 Cloning custom repo: $REPOSITORY_URL" "info"
+    git clone "$REPOSITORY_URL" "$LOCAL_APP_CODE_PATH_HOST"
 
-    if [ -n "$CUSTOM_PRE_COMMAND" ]; then
-        print_style "⚙ Running pre-install command..." "info"
-        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_PRE_COMMAND"
-    fi
+    run_initial_commands
 
-    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install --no-interaction"
+    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install"
 
-    if [ -n "$CUSTOM_POST_COMMAND" ]; then
-        print_style "⚙ Running post-install command..." "info"
-        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_POST_COMMAND"
-    fi
+    install_additional_packages
+    
+    run_post_update_commands
+
+}
+
+install_additional_packages() {
+    print_style "📦 Installing additional Laravel packages..." "info"
+    for package in "${ADDITIONAL_PACKAGES[@]}"; do
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer require $package --no-interaction"
+    done
 }
 
 restart_docker_services() {
