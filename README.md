@@ -1,20 +1,18 @@
-
 # Laravel Dockerized Environment
 
-This repository provides a streamlined way to scaffold a Laravel development environment using Docker and Laradock. It includes an automated `install.sh` script and utility commands to manage containers and services efficiently.
+This project provides a streamlined Docker-based development environment for Laravel using Laradock. It includes setup scripts and handy Docker shortcut commands to simplify local development.
 
-## Directory Structure
+## Project Structure
 
 ```
-.
-├── README.md                  # Readme file
-├── Scripts/                   # Docker shortcut commands
-│   ├── artisan                # Run Laravel Artisan commands
-│   ├── down                   # Stop and remove containers
-│   ├── rebuild                # Rebuild containers
-│   └── up                     # Start containers
+├── README.md
+├── cmd/
+│   ├── artisan
+│   ├── down
+│   ├── rebuild
+│   └── up
 ├── Setup/
-│   ├── docker/                # Custom Docker configs
+│   ├── docker/
 │   │   ├── docker-compose.local.yml
 │   │   ├── mysql/
 │   │   │   └── Dockerfile
@@ -22,47 +20,43 @@ This repository provides a streamlined way to scaffold a Laravel development env
 │   │   │   └── sites/web.local.conf
 │   │   └── workspace/
 │   │       └── crontab/laradock
-│   ├── install.sh             # Main setup script
-│   └── utils.sh               # Utility functions
-├── Sources/                   # Laravel app will be placed here
-└── Docker/                    # Laradock cloned here automatically
-
+│   ├── install.sh
+│   └── utils.sh
+├── Sources/
+└── Docker/
 ```
 
-## Requirements
+## Prerequisites
 
-- Docker
-- Docker Compose
-- Bash
+- Docker & Docker Compose installed
+- Bash shell available
+- Git installed
+- SSH access if cloning a private repository
 
-## Quick Start
+## Installation
 
 ```bash
+cd Setup
 chmod +x install.sh
 ./install.sh
 ```
 
-## Docker Scripts
+## Docker Shortcut Scripts
 
-Make the scripts executable:
+| Script    | Description                          | Example Usage                  |
+|-----------|--------------------------------------|--------------------------------|
+| `up`      | Starts Docker containers             | `./cmd/up.sh`                 |
+| `down`    | Stops and removes containers         | `./cmd/down.sh`               |
+| `rebuild` | Rebuilds containers with no cache    | `./cmd/rebuild.sh`            |
+| `artisan` | Runs Laravel Artisan in container    | `./cmd/artisan.sh migrate`    |
 
+Make them executable:
 ```bash
 chmod +x Scripts/*
 ```
 
-Then run like:
+## Output
 
-```bash
-./Scripts/up
-./Scripts/down
-./Scripts/rebuild
-./Scripts/artisan migrate
-```
+- Laravel code lives in: `Sources/web`
+- Laradock lives in: `Docker/`
 
-## 📦 Custom Docker Configs
-
-Custom Docker config files should be placed in the `docker/` directory and will be copied into Laradock.
-
-## 🌍 Access
-
-Visit: http://localhost/
