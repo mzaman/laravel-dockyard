@@ -16,7 +16,6 @@ load_variables() {
     DB_ROOT_USER="${DB_ROOT_USER:-$DEFAULT_DB_ROOT_USER}"
     DB_ROOT_PASSWORD="${DB_ROOT_PASSWORD:-$DEFAULT_DB_ROOT_PASSWORD}"
     DB_NAME="${DB_NAME:-$DEFAULT_DB_NAME}"
-
     LARAVEL_VERSION="${LARAVEL_VERSION:-$DEFAULT_LARAVEL_VERSION}"
     DOCKER_SERVICES=("${DOCKER_SERVICES[@]:-${DEFAULT_DOCKER_SERVICES[@]}}")
 }
@@ -75,6 +74,13 @@ install_laravel() {
     install_laravel_packages
 }
 
+install_laravel_packages() {
+    print_style "📦 Installing additional Laravel packages..." "info"
+    for package in "${LARAVEL_PACKAGES[@]}"; do
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && COMPOSER_ALLOW_SUPERUSER=1 composer require $package --no-interaction || true"
+    done
+}
+
 run_custom_project() {
     print_style "🔗 Cloning custom repo: $CUSTOM_GIT_REPO" "info"
     git clone "$CUSTOM_GIT_REPO" "$LOCAL_APP_CODE_PATH_HOST"
@@ -84,26 +90,12 @@ run_custom_project() {
         execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_PRE_COMMAND"
     fi
 
-    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install"
+    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install --no-interaction"
 
     if [ -n "$CUSTOM_POST_COMMAND" ]; then
         print_style "⚙ Running post-install command..." "info"
         execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_POST_COMMAND"
     fi
-}
-
-install_laravel_packages() {
-    local packages=(
-        "barryvdh/laravel-debugbar"
-        "laravel/sanctum"
-        "guzzlehttp/guzzle:^7.0"
-        "spatie/laravel-permission"
-    )
-
-    print_style "📦 Installing additional Laravel packages..." "info"
-    for package in "${packages[@]}"; do
-        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer require $package"
-    done
 }
 
 restart_docker_services() {
@@ -120,7 +112,6 @@ create_mysql_database() {
 
 configure_laravel_env() {
     print_style "⚙ Configuring Laravel .env file..." "info"
-
     local ENV_FILE="$LOCAL_APP_CODE_PATH_HOST/.env"
     local EXAMPLE_FILE="$LOCAL_APP_CODE_PATH_HOST/.env.example"
 

@@ -26,6 +26,13 @@ CUSTOM_GIT_REPO="${CUSTOM_GIT_REPO:-}"
 CUSTOM_PRE_COMMAND="${CUSTOM_PRE_COMMAND:-}"
 CUSTOM_POST_COMMAND="${CUSTOM_POST_COMMAND:-}"
 
+LARAVEL_PACKAGES=(
+    "barryvdh/laravel-debugbar"
+    "laravel/sanctum"
+    "guzzlehttp/guzzle:^7.0"
+    "spatie/laravel-permission"
+)
+
 # ─────────────────────────────────────────────────────────────
 # Source utility script
 # ─────────────────────────────────────────────────────────────
@@ -45,7 +52,7 @@ main() {
     else
         install_laravel
     fi
-    
+
     create_mysql_database
     configure_laravel_env
     print_style "✅ Laravel + Docker setup completed successfully!" "success"
