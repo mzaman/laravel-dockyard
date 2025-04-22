@@ -56,7 +56,6 @@ clone_laradock() {
         git clone --branch "$LARADOCK_BRANCH" "$LARADOCK_REPO" "$LOCAL_DOCKER_PATH_HOST"
         rm -rf "$LOCAL_DOCKER_PATH_HOST/.git"
     else
-        rm -rf "$LOCAL_DOCKER_PATH_HOST/.git"
         print_style "ℹ️ Laradock already exists. Skipping clone." "warning"
     fi
 }
