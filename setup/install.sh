@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# install.sh — Main script to install Docker & Laravel environment
+# install.sh — Main script to install Docker & Laravel environment or clone external project
 # Make executable: chmod +x install.sh
 # Run: ./install.sh
 
@@ -18,9 +18,13 @@ DEFAULT_DB_ROOT_PASSWORD="root"
 DEFAULT_DB_NAME="cms_db"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
 DEFAULT_LARAVEL_VERSION="^10"
-DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis)
+DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
 LARADOCK_REPO="https://github.com/laradock/laradock.git"
 LARADOCK_BRANCH="master"
+
+CUSTOM_GIT_REPO="${CUSTOM_GIT_REPO:-}"
+CUSTOM_PRE_COMMAND="${CUSTOM_PRE_COMMAND:-}"
+CUSTOM_POST_COMMAND="${CUSTOM_POST_COMMAND:-}"
 
 # ─────────────────────────────────────────────────────────────
 # Source utility script
@@ -35,7 +39,13 @@ main() {
     clone_laradock
     copy_custom_configs
     restart_docker_services
-    install_laravel
+
+    if [ -n "$CUSTOM_GIT_REPO" ]; then
+        run_custom_project
+    else
+        install_laravel
+    fi
+    
     create_mysql_database
     configure_laravel_env
     print_style "✅ Laravel + Docker setup completed successfully!" "success"

@@ -75,6 +75,23 @@ install_laravel() {
     install_laravel_packages
 }
 
+run_custom_project() {
+    print_style "🔗 Cloning custom repo: $CUSTOM_GIT_REPO" "info"
+    git clone "$CUSTOM_GIT_REPO" "$LOCAL_APP_CODE_PATH_HOST"
+
+    if [ -n "$CUSTOM_PRE_COMMAND" ]; then
+        print_style "⚙ Running pre-install command..." "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_PRE_COMMAND"
+    fi
+
+    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install"
+
+    if [ -n "$CUSTOM_POST_COMMAND" ]; then
+        print_style "⚙ Running post-install command..." "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $CUSTOM_POST_COMMAND"
+    fi
+}
+
 install_laravel_packages() {
     local packages=(
         "barryvdh/laravel-debugbar"
