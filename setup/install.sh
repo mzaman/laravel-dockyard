@@ -15,7 +15,7 @@ fi
 # ─────────────────────────────────────────────────────────────
 DEFAULT_DB_ROOT_USER="root"
 DEFAULT_DB_ROOT_PASSWORD="root"
-DEFAULT_DB_NAME="laravel_db"
+DEFAULT_DB_NAME="cms_db"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
 DEFAULT_LARAVEL_VERSION="^10"
 DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis)
@@ -36,8 +36,8 @@ main() {
     copy_custom_configs
     restart_docker_services
     install_laravel
-    # create_mysql_database
-    # configure_laravel_env
+    create_mysql_database
+    configure_laravel_env
     print_style "✅ Laravel + Docker setup completed successfully!" "success"
 }
 
