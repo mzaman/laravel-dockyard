@@ -52,7 +52,7 @@ chmod +x install.sh
 
 Make them executable:
 ```bash
-chmod +x Scripts/*
+chmod +x cmd/*
 ```
 
 ## Output
