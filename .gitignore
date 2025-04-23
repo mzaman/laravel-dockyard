@@ -1,10 +1,6 @@
 *.DS_Store
 *.bak
-*.git*
 .idea
-*.phpstorm.meta.php
-Docker
-*_ide_helper*.php
+/Docker
 *node_modules
 *composer.lock
-*package*.json

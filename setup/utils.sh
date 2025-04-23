@@ -92,6 +92,8 @@ install_laravel() {
         run_initial_commands
         execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER && composer create-project --prefer-dist laravel/laravel=\"$LARAVEL_VERSION\" $APP_CODE_RELATIVE_PATH"
 
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && cp .env.example .env"
+
     fi
 
     install_additional_packages
@@ -115,11 +117,11 @@ run_post_update_commands() {
 run_custom_project() {
     print_style "🔗 Cloning custom repo: $REPOSITORY_URL" "info"
     git clone "$REPOSITORY_URL" "$LOCAL_APP_CODE_PATH_HOST"
-
+    rm -rf "$LOCAL_APP_CODE_PATH_HOST/.git"
     run_initial_commands
 
     execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install"
-
+    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && cp .env.example .env"
     install_additional_packages
     
     run_post_update_commands
