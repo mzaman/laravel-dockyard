@@ -55,13 +55,13 @@ This project provides a streamlined Docker-based development environment for Lar
 ### 1. Clone the repository:
 
 ```bash
-git clone git@github.com:mzaman/laravel-boilerplate.git example-app
+git clone git@github.com:mzaman/laravel-boilerplate.git laravel-boilerplate
 ```
 
 ### 2. Navigate to the project directory:
 
 ```bash
-cd insight-cms
+cd laravel-boilerplate
 ```
 
 ### 3. Environment Installation
