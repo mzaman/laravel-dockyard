@@ -3,11 +3,60 @@
 This project provides a streamlined Docker-based development environment for Laravel using Docker. It includes setup scripts and handy Docker shortcut commands to simplify local development.
 
 ## Prerequisites
+Before you begin using this project, you need to ensure that your system meets the following preinstallation requirements:
 
 - Docker & Docker Compose installed
 - Bash shell available
 - Git installed
 - SSH access if cloning a private repository
+
+## 1. **Docker**
+
+This project relies on Docker to create and manage containers. You need to have Docker installed on your machine.
+
+- **Docker Engine**: The core component for running containers.
+- **Docker Compose**: Used to define and run multi-container Docker applications.
+
+### Installing Docker
+You can download Docker based on your operating system:
+- [Docker for Mac](https://www.docker.com/products/docker-desktop)
+- [Docker for Windows](https://www.docker.com/products/docker-desktop)
+- [Docker for Linux](https://docs.docker.com/engine/install/)
+
+#### Verify Installation:
+After installation, you can verify if Docker and Docker Compose are installed correctly by running:
+```bash
+docker --version
+docker-compose --version
+```
+
+> **Note**: Docker Desktop comes with Docker Compose preinstalled, so you don’t need to install it separately on macOS and Windows. On Linux, you might need to install it manually.
+
+## 2. **Docker Compose**
+
+This project uses Docker Compose to manage multiple Docker containers. You need to have Docker Compose installed on your machine.
+
+### Installing Docker Compose
+You can download Docker Compose based on your operating system:
+- [Docker Compose for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+- [Docker Compose for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+- [Docker Compose for Linux](https://docs.docker.com/desktop/setup/install/linux/)
+
+#### Verify Installation:
+After installation, you can verify if Docker Compose is installed correctly by running:
+
+```bash
+docker-compose --version
+```
+
+## 3. System Requirements
+- **Linux**: Any supported Linux distribution (e.g., Ubuntu).
+- **macOS**: Docker Desktop for macOS.
+- **Windows**: Docker Desktop for Windows, with WSL 2 enabled.
+
+## 4. RAM and CPU
+- A minimum of 4 GB of RAM is recommended.
+- Docker uses CPU resources to manage containers, so ensure your machine has adequate resources.
 
 ## Project Structure
 
