@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Function to get the current timestamp
+timestamp() {
+    date +"%Y-%m-%d %H:%M:%S"
+}
+
+# Check if container name is provided as the first argument
+if [ -z "$1" ]; then
+    echo "$(timestamp) - Error: No container name provided."
+    echo "Usage: ./exec <container_name> [command]"
+    echo "Example: ./exec nginx"
+    exit 1
+fi
+
+# Get the container name (first argument)
+CONTAINER=$1
+
+# Get the command (all arguments after the container name)
+COMMAND="${@:2}"
+
+# If no command is provided, default to entering the container with bash
+if [ -z "$COMMAND" ]; then
+    echo "$(timestamp) - Entering the $CONTAINER container with bash..."
+    docker-compose -f ../Docker/docker-compose.yml exec $CONTAINER bash
+else
+    # If a command is provided, execute it with bash -c
+    echo "$(timestamp) - Running command in the $CONTAINER container: $COMMAND"
+    docker-compose -f ../Docker/docker-compose.yml exec $CONTAINER bash -c "$COMMAND" 2>&1 | while IFS= read -r line; do
+        echo "$(timestamp) - $line"
+    done | tee -a "$CONTAINER"_output.log  # Append the log output to the existing log file
+fi
+
+# Check if the command was successful
+EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "$(timestamp) - Error: Command failed with exit code $EXIT_CODE."
+    exit $EXIT_CODE
+else
+    echo "$(timestamp) - Command executed successfully in the $CONTAINER container."
+fi

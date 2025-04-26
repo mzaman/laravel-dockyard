@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Function to get the current timestamp
+timestamp() {
+    date +"%Y-%m-%d %H:%M:%S"
+}
+
+# Check if arguments are passed
+if [ "$#" -eq 0 ]; then
+    echo "$(timestamp) - Error: No arguments provided."
+    exit 1
+fi
+
+# Display the command being run
+echo "$(timestamp) - Running: docker-compose -f ../Docker/docker-compose.yml exec workspace bash -c 'cd web && php artisan $*'"
+
+# Execute the docker-compose command and capture output, appending it to the log file
+docker-compose -f ../Docker/docker-compose.yml exec workspace bash -c "cd web && php artisan $*" 2>&1 | while IFS= read -r line; do
+    echo "$(timestamp) - $line"
+done | tee -a artisan_output.log
+
+# Check if the command was successful using a different method for error checking
+EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ]; then
+    echo "$(timestamp) - Error: art command failed with exit code $EXIT_CODE."
+    exit $EXIT_CODE
+else
+    echo "$(timestamp) - art command executed successfully."
+fi
