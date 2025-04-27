@@ -14,6 +14,7 @@ fi
 # Default Configuration (can be overridden before running)
 # ─────────────────────────────────────────────────────────────
 REPOSITORY_URL="git@github.com:mzaman/laravel-boilerplate.git"
+REPOSITORY_BRANCH="master"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
 DEFAULT_DOCKER_SERVICES=(workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
 DEFAULT_DB_ROOT_USER="root"
@@ -26,22 +27,7 @@ INITIAL_COMMANDS=(
 )
 
 POST_UPDATE_COMMANDS=(
-    "find . -type f -exec chmod 644 {} \;"
-    "find . -type d -exec chmod 755 {} \;"
-    "chgrp -R www-data storage bootstrap/cache"
-    "chmod -R ug+rwx storage bootstrap/cache"
-    "chmod -R gu+w storage bootstrap/cache && chmod -R guo+w storage bootstrap/cache"
-    "cp -r .env.example .env"
-    "rm -rf composer.lock"
-    "rm -rf vendor"
-    "composer install"
-    "composer dump-autoload"
-    "php artisan key:generate"
-    "php artisan optimize:clear"
-    "php artisan migrate --seed"
-    "composer dump-autoload"
-    "npm install"
-    "npm run prod"
+    "php artisan migrate:refresh --seed"
 )
 
 ADDITIONAL_PACKAGES=(
