@@ -40,6 +40,8 @@ POST_UPDATE_COMMANDS=(
     "php artisan optimize:clear"
     "php artisan migrate --seed"
     "composer dump-autoload"
+    "npm install"
+    "npm run prod"
 )
 
 ADDITIONAL_PACKAGES=(
