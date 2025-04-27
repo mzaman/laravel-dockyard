@@ -21,6 +21,25 @@ load_variables() {
 
     LARADOCK_REPO="https://github.com/laradock/laradock.git"
     LARADOCK_BRANCH="master"
+
+    PRE_INSTALL_LARAVEL_COMMANDS=(
+        "find . -type f -exec chmod 644 {} \;"
+        "find . -type d -exec chmod 755 {} \;"
+        "chgrp -R www-data storage bootstrap/cache"
+        "chmod -R ug+rwx storage bootstrap/cache"
+        "chmod -R gu+w storage bootstrap/cache && chmod -R guo+w storage bootstrap/cache"
+    )
+
+    POST_INSTALL_LARAVEL_COMMANDS=(
+        "rm -rf composer.lock"
+        "rm -rf vendor node_modules"
+        "composer install"
+        "composer dump-autoload"
+        "php artisan key:generate"
+        "php artisan optimize:clear"
+        "npm install"
+        "npm run prod"
+    )
 }
 
 init() {
@@ -28,15 +47,21 @@ init() {
     clone_laradock
     copy_custom_configs
     restart_docker_services
+    create_mysql_database
+    run_initial_commands
 
     if [ -n "$REPOSITORY_URL" ]; then
-        run_custom_project
+        clone_custom_project
+        configure_laravel_env
     else
-        install_laravel
+        clone_fresh_laravel
+        configure_laravel_env
     fi
 
-    create_mysql_database
-    configure_laravel_env
+    run_pre_install_laravel_commands
+    run_post_install_laravel_commands
+    install_additional_packages
+    run_post_update_commands
 
     print_style "✅ Laravel + Docker setup completed successfully!" "success"
 }
@@ -74,8 +99,8 @@ copy_custom_configs() {
     cp -r "$LOCAL_SCRIPT_PATH_HOST/docker/workspace/crontab/laradock" "$LOCAL_DOCKER_PATH_HOST/workspace/crontab/"
     cp -r "$LOCAL_SCRIPT_PATH_HOST/docker/.env.local.example" "$LOCAL_DOCKER_PATH_HOST/.env"
     cp -r "$LOCAL_SCRIPT_PATH_HOST/docker/docker-compose.local.yml" "$LOCAL_DOCKER_PATH_HOST/docker-compose.yml"
-    cp -r "$LOCAL_APP_CODE_PATH_HOST/.env.example" "$LOCAL_APP_CODE_PATH_HOST/.env"
-    cp -r "$LOCAL_SCRIPT_PATH_HOST/swagger/swagger.yaml" "$LOCAL_APP_CODE_PATH_HOST/storage/app/public/swagger.yaml"
+    # cp -r "$LOCAL_APP_CODE_PATH_HOST/.env.example" "$LOCAL_APP_CODE_PATH_HOST/.env"
+    # cp -r "$LOCAL_SCRIPT_PATH_HOST/swagger/swagger.yaml" "$LOCAL_APP_CODE_PATH_HOST/storage/app/public/swagger.yaml"
 }
 
 execute_in_local_docker() {
@@ -85,21 +110,15 @@ execute_in_local_docker() {
     fi
 }
 
-install_laravel() {
+clone_fresh_laravel() {
     print_style "🧱 Installing Laravel ($LARAVEL_VERSION)..." "info"
     mkdir -p "$LOCAL_APP_CODE_PATH_HOST"
     if [ -f "$LOCAL_APP_CODE_PATH_HOST/artisan" ]; then
         print_style "ℹ️ Laravel already installed. Skipping." "warning"
     else
-        run_initial_commands
         execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER && composer create-project --prefer-dist laravel/laravel=\"$LARAVEL_VERSION\" $APP_CODE_RELATIVE_PATH"
 
-        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && cp .env.example .env"
-
     fi
-
-    install_additional_packages
-    run_post_update_commands
 }
 
 run_initial_commands() {
@@ -116,18 +135,24 @@ run_post_update_commands() {
     done
 }
 
-run_custom_project() {
+run_pre_install_laravel_commands() {
+    for cmd in "${PRE_INSTALL_LARAVEL_COMMANDS[@]}"; do
+        print_style "⚙ Running pre-install command: $cmd" "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $cmd"
+    done
+}
+
+run_post_install_laravel_commands() {
+    for cmd in "${POST_INSTALL_LARAVEL_COMMANDS[@]}"; do
+        print_style "⚙ Running post-install command: $cmd" "info"
+        execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && $cmd"
+    done
+}
+
+clone_custom_project() {
     print_style "🔗 Cloning custom repo: $REPOSITORY_URL" "info"
-    git clone "$REPOSITORY_URL" "$LOCAL_APP_CODE_PATH_HOST"
+    git clone  --branch "$REPOSITORY_BRANCH" "$REPOSITORY_URL" "$LOCAL_APP_CODE_PATH_HOST"
     rm -rf "$LOCAL_APP_CODE_PATH_HOST/.git"
-    run_initial_commands
-
-    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && composer install"
-    execute_in_local_docker "cd $APP_CODE_PATH_CONTAINER/$APP_CODE_RELATIVE_PATH && cp .env.example .env"
-    install_additional_packages
-    
-    run_post_update_commands
-
 }
 
 install_additional_packages() {

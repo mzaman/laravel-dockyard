@@ -104,13 +104,13 @@ docker-compose --version
 ### 1. Clone the repository:
 
 ```bash
-git clone git@github.com:mzaman/laravel-boilerplate.git laravel-boilerplate
+git clone git@github.com:mzaman/laravel-dockyard.git laravel-dockyard
 ```
 
 ### 2. Navigate to the project directory:
 
 ```bash
-cd laravel-boilerplate
+cd laravel-dockyard
 ```
 
 ### 3. Environment Installation
