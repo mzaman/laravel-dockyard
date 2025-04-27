@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Clearing application caches"
+./art optimize:clear

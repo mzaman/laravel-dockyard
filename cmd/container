@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Check if container name is provided as the first argument
+if [ -z "$1" ]; then
+    echo "Error: No container name provided."
+    echo "Usage: ./container <container_name>"
+    echo "Example: ./container nginx"
+    exit 1
+fi
+
+# Get the container name (first argument)
+CONTAINER=$1
+
+# Default command (bash) to be run inside the container if no command is provided
+COMMAND="${2:-bash}"
+
+# Execute the command inside the specified container
+echo "Running: docker-compose -f ../Docker/docker-compose.yml container $CONTAINER $COMMAND"
+docker-compose -f ../Docker/docker-compose.yml container $CONTAINER $COMMAND
