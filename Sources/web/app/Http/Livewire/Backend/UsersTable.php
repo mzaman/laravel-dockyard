@@ -6,7 +6,7 @@ use App\Domains\Auth\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Rappasoft\LaravelLivewireTables\DataTableComponent;
 use Rappasoft\LaravelLivewireTables\Views\Column;
-use Rappasoft\LaravelLivewireTables\Views\Filter;
+use Rappasoft\LaravelLivewireTables\Views\Filters\SelectFilter;
 
 /**
  * Class UsersTable.
@@ -45,7 +45,7 @@ class UsersTable extends DataTableComponent
     /**
      * @return Builder
      */
-    public function query(): Builder
+    public function builder(): Builder
     {
         $query = User::with('roles', 'twoFactorAuth')->withCount('twoFactorAuth');
 
@@ -64,26 +64,31 @@ class UsersTable extends DataTableComponent
             ->when($this->getFilter('verified'), fn ($query, $verified) => $verified === 'yes' ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at'));
     }
 
+    public function getFilter($column): bool
+    {
+        return ! (empty($this->columnSearch[$column] ?? null));
+    }
+
     /**
      * @return array
      */
     public function filters(): array
     {
         return [
-            'type' => Filter::make('User Type')
-                ->select([
+            'type' => SelectFilter::make('User Type')
+                ->options([
                     '' => 'Any',
                     User::TYPE_ADMIN => 'Administrators',
                     User::TYPE_USER => 'Users',
                 ]),
-            'active' => Filter::make('Active')
-                ->select([
+            'active' => SelectFilter::make('Active')
+                ->options([
                     '' => 'Any',
                     'yes' => 'Yes',
                     'no' => 'No',
                 ]),
-            'verified' => Filter::make('E-mail Verified')
-                ->select([
+            'verified' => SelectFilter::make('E-mail Verified')
+                ->options([
                     '' => 'Any',
                     'yes' => 'Yes',
                     'no' => 'No',
@@ -105,19 +110,21 @@ class UsersTable extends DataTableComponent
                 ->sortable(),
             Column::make(__('Verified'), 'email_verified_at')
                 ->sortable(),
-            Column::make(__('2FA'), 'two_factor_auth_count')
+            Column::make(__('2FA'))
+                ->label(fn ($row) => $row->two_factor_auth_count)
                 ->sortable(),
-            Column::make(__('Roles')),
-            Column::make(__('Additional Permissions')),
-            Column::make(__('Actions')),
+            Column::make(__('Roles'))
+                ->label(fn ($row) => $row->roles_label),
+            Column::make(__('Additional Permissions'))
+                ->label(fn ($row) => $row->permissions_label),
+            Column::make(__('Actions'), 'id')->format(
+                fn ($value, $row, Column $column) => view('backend.auth.user.includes.actions')->withUser($row)
+            )->html(),
         ];
     }
 
-    /**
-     * @return string
-     */
-    public function rowView(): string
+    public function configure(): void
     {
-        return 'backend.auth.user.includes.row';
+        $this->setPrimaryKey('id');
     }
 }

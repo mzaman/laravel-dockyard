@@ -17,11 +17,17 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
+        // if mysql/mariadb : Close any transactions if mysql/mariadb
+        \DB::commit();
+
         Artisan::call('db:seed');
+
+        // if mysql/mariadb : open a new transaction
+        \DB::beginTransaction();
 
         $this->withoutMiddleware(RequirePassword::class);
         $this->withoutMiddleware(TwoFactorAuthenticationStatus::class);

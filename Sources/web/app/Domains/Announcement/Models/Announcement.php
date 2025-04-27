@@ -6,6 +6,7 @@ use App\Domains\Announcement\Models\Traits\Scope\AnnouncementScope;
 use Database\Factories\AnnouncementFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
@@ -18,9 +19,11 @@ class Announcement extends Model
         LogsActivity;
 
     public const TYPE_FRONTEND = 'frontend';
+
     public const TYPE_BACKEND = 'backend';
 
     protected static $logFillable = true;
+
     protected static $logOnlyDirty = true;
 
     /**
@@ -38,17 +41,13 @@ class Announcement extends Model
     /**
      * @var string[]
      */
-    protected $dates = [
-        'starts_at',
-        'ends_at',
-    ];
-
     /**
      * @var string[]
      */
     protected $casts = [
-        'enabled' => 'boolean',
-    ];
+        'starts_at' => 'datetime',
+        'ends_at' => 'datetime',
+        'enabled' => 'boolean',    ];
 
     /**
      * Create a new factory instance for the model.
@@ -58,5 +57,10 @@ class Announcement extends Model
     protected static function newFactory()
     {
         return AnnouncementFactory::new();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults();
     }
 }

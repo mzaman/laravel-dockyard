@@ -8,8 +8,6 @@ use App\Domains\Auth\Models\Traits\Relationship\UserRelationship;
 use App\Domains\Auth\Models\Traits\Scope\UserScope;
 use App\Domains\Auth\Notifications\Frontend\ResetPasswordNotification;
 use App\Domains\Auth\Notifications\Frontend\VerifyEmail;
-use DarkGhostHunter\Laraguard\Contracts\TwoFactorAuthenticatable;
-use DarkGhostHunter\Laraguard\TwoFactorAuthentication;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -18,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Lab404\Impersonate\Models\Impersonate;
+use Laragear\TwoFactor\Contracts\TwoFactorAuthenticatable;
+use Laragear\TwoFactor\TwoFactorAuthentication;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -40,6 +40,7 @@ class User extends Authenticatable implements MustVerifyEmail, TwoFactorAuthenti
         UserScope;
 
     public const TYPE_ADMIN = 'admin';
+
     public const TYPE_USER = 'user';
 
     /**
@@ -76,23 +77,17 @@ class User extends Authenticatable implements MustVerifyEmail, TwoFactorAuthenti
     /**
      * @var array
      */
-    protected $dates = [
-        'last_login_at',
-        'email_verified_at',
-        'password_changed_at',
-    ];
-
     /**
      * The attributes that should be cast.
      *
      * @var array
      */
     protected $casts = [
+        'password_changed_at' => 'datetime',
         'active' => 'boolean',
         'last_login_at' => 'datetime',
         'email_verified_at' => 'datetime',
-        'to_be_logged_out' => 'boolean',
-    ];
+        'to_be_logged_out' => 'boolean',    ];
 
     /**
      * @var array

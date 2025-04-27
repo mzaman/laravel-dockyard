@@ -9,8 +9,6 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/rappasoft/laravel-boilerplate.svg)
 ![GitHub stars](https://img.shields.io/github/stars/rappasoft/laravel-boilerplate.svg?style=social)
 
-### Enjoying this project? [Buy me a beer 🍺](https://www.buymeacoffee.com/rappasoft)
-
 ### Demo Credentials
 
 **Admin:** admin@admin.com  
@@ -46,3 +44,13 @@ If you discover a security vulnerability within this boilerplate, please send an
 ### License
 
 MIT: [http://anthony.mit-license.org](http://anthony.mit-license.org)
+
+### Barebones Starting 
+While not mandatory this project can use Docker and laravel sail to support development.   A quickstart 
+docker run --rm -u "$(id -u):$(id -g)" -v $(pwd):/opt  -w /opt laravelsail/php81-composer:latest \
+composer install --ignore-platform-reqs
+
+docker run --rm -u "$(id -u):$(id -g)" -v $(pwd):/opt  -w /opt laravelsail/php81-composer:latest \
+php artisan sail:install
+
+./vendor/bin/sail up -d
