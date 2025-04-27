@@ -13,12 +13,12 @@ fi
 # ─────────────────────────────────────────────────────────────
 # Default Configuration (can be overridden before running)
 # ─────────────────────────────────────────────────────────────
-REPOSITORY_URL=""
+REPOSITORY_URL="git@github.com:mzaman/laravel-boilerplate.git"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
 DEFAULT_DOCKER_SERVICES=(workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
 DEFAULT_DB_ROOT_USER="root"
 DEFAULT_DB_ROOT_PASSWORD="root"
-DEFAULT_DB_NAME="laravel_boilerplate"
+DEFAULT_DB_NAME="laravel_dockyard"
 DEFAULT_LARAVEL_VERSION="^9"
 
 INITIAL_COMMANDS=(
