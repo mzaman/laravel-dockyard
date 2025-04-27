@@ -1,0 +1,329 @@
+openapi: 3.0.0
+info:
+  title: 'Laravel Boilerplate : REST API (v1)'
+  description: >-
+    This is the REST API collection for Laravel Boilerplate version 1. It provides
+    access to various functionalities such as user authentication, permissions
+    management, role management, and post creation. Each endpoint is designed to
+    interact with the system's core services, enabling users to manage content
+    efficiently.
+  version: 1.0.0
+servers:
+  - url: http://web.test
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/auth/register:
+    post:
+      tags:
+        - default
+      summary: Register
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: >-
+                    The full name of the user being registered. Example:
+                    'TestUser'.
+                  example: TestUser
+                password:
+                  type: string
+                  description: 'The password for the user. Example: ''password''.'
+                  example: password
+                email:
+                  type: string
+                  description: 'The email address of the user. Example: ''user3@mail.com''.'
+                  example: user3@mail.com
+                role_id:
+                  type: integer
+                  description: 'The ID of the role to be assigned to the user. Example: ''4''.'
+                  example: '4'
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/auth/login:
+    post:
+      tags:
+        - default
+      summary: Login
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: >-
+                    The email address of the user attempting to log in. Example:
+                    'admin@mail.com'.
+                  example: admin@mail.com
+                password:
+                  type: string
+                  description: >-
+                    The password associated with the provided email. Example:
+                    'password'.
+                  example: password
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - default
+      summary: Refresh
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the user requesting the token refresh.
+                  example: admin@mail.com
+                password:
+                  type: string
+                  description: The password of the user requesting the token refresh.
+                  example: password
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/auth/logout:
+    post:
+      tags:
+        - default
+      summary: Logout
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: >-
+                    The email address of the user logging out. Example:
+                    'admin@mail.com'.
+                  example: admin@mail.com
+                password:
+                  type: string
+                  description: >-
+                    The password associated with the provided email. Example:
+                    'password'.
+                  example: password
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/permissions:
+    post:
+      tags:
+        - default
+      summary: Add Permission
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'The name of the permission. Example: ''Share''.'
+                  example: Share
+                slug:
+                  type: string
+                  description: >-
+                    The slug for the permission, used for URL routing. Example:
+                    'share'.
+                  example: share
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - default
+      summary: List Permissions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/roles:
+    post:
+      tags:
+        - default
+      summary: Add Role
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'The name of the role being created. Example: ''Editor''.'
+                  example: Editor
+                slug:
+                  type: string
+                  description: >-
+                    The slug for the role, used for URL routing. Example:
+                    'editor'.
+                  example: editor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/roles/1:
+    get:
+      tags:
+        - default
+      summary: Show Role Without Permissions
+      security:
+        - noauthAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/posts:
+    post:
+      tags:
+        - default
+      summary: Delete Post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: >-
+                    The title of the post to be deleted. Example: 'my blog
+                    title'.
+                  example: my blog title
+                content:
+                  type: string
+                  description: >-
+                    The content of the post to be deleted. Example: 'Content
+                    goes here'.
+                  example: Content goes here
+                external_id:
+                  type: string
+                  description: >-
+                    An external ID or reference URL associated with the post to
+                    be deleted. Example: 'https://domain.com/page1'.
+                  example: https://domain.com/page1
+                user_id:
+                  type: integer
+                  description: >-
+                    The user ID associated with the post to be deleted. Example:
+                    '1'.
+                  example: '1'
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - default
+      summary: List Posts
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/users:
+    get:
+      tags:
+        - default
+      summary: List Users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  

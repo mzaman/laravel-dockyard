@@ -13,27 +13,25 @@ fi
 # ─────────────────────────────────────────────────────────────
 # Default Configuration (can be overridden before running)
 # ─────────────────────────────────────────────────────────────
-REPOSITORY_URL=""
+REPOSITORY_URL="git@github.com:mzaman/laravel-boilerplate.git"
+REPOSITORY_BRANCH="master"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
-DEFAULT_DOCKER_SERVICES=(nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
+DEFAULT_DOCKER_SERVICES=(workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
 DEFAULT_DB_ROOT_USER="root"
 DEFAULT_DB_ROOT_PASSWORD="root"
-DEFAULT_DB_NAME="cms_db"
-DEFAULT_LARAVEL_VERSION="^10"
+DEFAULT_DB_NAME="laravel_dockyard"
+DEFAULT_LARAVEL_VERSION="^9"
 
 INITIAL_COMMANDS=(
     "echo 'No pre-install command'"
 )
 
 POST_UPDATE_COMMANDS=(
-    "echo 'No post-install command'"
+    "php artisan migrate:refresh --seed"
 )
 
 ADDITIONAL_PACKAGES=(
-    # "barryvdh/laravel-debugbar"
-    # "laravel/sanctum"
-    # "guzzlehttp/guzzle:^7.0"
-    # "spatie/laravel-permission"
+
 )
 
 # ─────────────────────────────────────────────────────────────
