@@ -117,8 +117,7 @@ cd laravel-dockyard
 Run the setup script:
 
 ```bash
-cd Setup
-chmod +x install.sh
+chmod +x Setup/install.sh && ./Setup/install.sh
 ./install.sh
 ```
 

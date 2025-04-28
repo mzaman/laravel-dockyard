@@ -19,7 +19,7 @@ load_variables() {
     LARAVEL_VERSION="${LARAVEL_VERSION:-$DEFAULT_LARAVEL_VERSION}"
     DOCKER_SERVICES=("${DOCKER_SERVICES[@]:-${DEFAULT_DOCKER_SERVICES[@]}}")
 
-    LARADOCK_REPO="https://github.com/laradock/laradock.git"
+    LARADOCK_REPO="git@github.com:mzaman/laradock.git"
     LARADOCK_BRANCH="master"
 
     PRE_INSTALL_LARAVEL_COMMANDS=(
