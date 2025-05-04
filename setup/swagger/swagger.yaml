@@ -1,23 +1,145 @@
 openapi: 3.0.0
 info:
-  title: 'Laravel Boilerplate : REST API (v1)'
-  description: >-
-    This is the REST API collection for Laravel Boilerplate version 1. It provides
-    access to various functionalities such as user authentication, permissions
-    management, role management, and post creation. Each endpoint is designed to
-    interact with the system's core services, enabling users to manage content
-    efficiently.
+  title: 'Laravel Dockyard : REST API (v1)'
+  description: |
+    **Laravel Dockyard REST API v1** provides comprehensive access to all the functionality available in the Laravel Dockyard platform.
+    This API allows authentication, user management, role management, permission management, and content creation.
+
+    **Authentication Overview:**
+    - Use the `/api/v1/auth/login` endpoint to authenticate a user and obtain a JWT token for accessing protected resources.
+    - The JWT token should be included in the `Authorization` header as `Bearer <JWT_TOKEN>` in subsequent requests.
+    - If the token expires, the `/api/v1/auth/refresh` endpoint allows refreshing the token.
+    - Logging out via `/api/v1/auth/logout` invalidates the current session's JWT token.
+
+    **Security Requirements:**
+    - Authentication via JWT is required for most of the protected endpoints. The token should be included as a `Bearer` token in the `Authorization` header.
+    - Some endpoints may require specific roles or permissions. If a user does not have sufficient privileges, the request will be rejected with a `403 Forbidden` error.
+
+    **Pagination and Rate-Limiting:**
+    - Endpoints that return a list of resources (such as users or posts) support pagination using `page` and `limit` query parameters.
+    - The API enforces rate limiting, with information provided via response headers like `X-Rate-Limit`.
+
   version: 1.0.0
 servers:
   - url: http://web.test
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
+    noauthAuth:
+      type: http
+      scheme: noauth
+
+  responses:
+    Unauthorized:
+      description: Unauthorized - Authentication failed or token expired
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Unauthorized. Invalid email/password or expired token."
+    Forbidden:
+      description: Forbidden - Insufficient permissions to access this resource
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Forbidden. You do not have permission to access this resource."
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Resource not found."
+    BadRequest:
+      description: Bad request due to invalid or missing fields
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Bad request. Missing or invalid parameters."
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Rate limit exceeded. Please try again later."
+
+  schemas:
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: >-
+            The JWT token returned after successful authentication. This token must be included as a Bearer token for future requests.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expires_in:
+          type: integer
+          description: >-
+            The number of seconds until the token expires. After this time, the user will need to refresh the token.
+          example: 3600
+
 security:
   - bearerAuth: []
 paths:
+  /api/v1/auth/login:
+    post:
+      tags:
+        - default
+      summary: Login
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: >-
+                    The email address of the user attempting to log in. Example:
+                    'admin@mail.com'.
+                  example: admin@mail.com
+                password:
+                  type: string
+                  description: >-
+                    The password associated with the provided email. Example:
+                    'password'.
+                  example: password
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          description: Indicates that the response should be in JSON format.
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
   /api/v1/auth/register:
     post:
       tags:
@@ -47,43 +169,6 @@ paths:
                   type: integer
                   description: 'The ID of the role to be assigned to the user. Example: ''4''.'
                   example: '4'
-      parameters:
-        - name: Accept
-          in: header
-          schema:
-            type: string
-          description: Indicates that the response should be in JSON format.
-          example: application/json
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/v1/auth/login:
-    post:
-      tags:
-        - default
-      summary: Login
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                email:
-                  type: string
-                  description: >-
-                    The email address of the user attempting to log in. Example:
-                    'admin@mail.com'.
-                  example: admin@mail.com
-                password:
-                  type: string
-                  description: >-
-                    The password associated with the provided email. Example:
-                    'password'.
-                  example: password
-      security:
-        - bearerAuth: []
       parameters:
         - name: Accept
           in: header
@@ -157,6 +242,16 @@ paths:
             type: string
           description: Indicates that the response should be in JSON format.
           example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/v1/users:
+    get:
+      tags:
+        - default
+      summary: List Users
       responses:
         '200':
           description: Successful response
@@ -311,16 +406,6 @@ paths:
       tags:
         - default
       summary: List Posts
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/v1/users:
-    get:
-      tags:
-        - default
-      summary: List Users
       responses:
         '200':
           description: Successful response

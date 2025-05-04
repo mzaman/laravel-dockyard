@@ -37,6 +37,7 @@ load_variables() {
         "composer dump-autoload"
         "php artisan key:generate"
         "php artisan optimize:clear"
+        "php artisan storage:link"
         "npm install"
         "npm run prod"
     )
@@ -47,7 +48,8 @@ init() {
     clone_laradock
     copy_custom_configs
     restart_docker_services
-    create_mysql_database
+    create_database_if_not_exists
+    # create_mysql_database
     run_initial_commands
 
     if [ -n "$REPOSITORY_URL" ]; then
@@ -172,6 +174,82 @@ create_mysql_database() {
     docker-compose -f "$LOCAL_DOCKER_PATH_HOST/docker-compose.yml" exec -T mysql \
         mysql -u"$DB_ROOT_USER" -p"$DB_ROOT_PASSWORD" -e \
         "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+}
+
+# Function to create a database and user if they do not exist based on type
+create_database_if_not_exists() {
+    local DB_TYPE="mysql"
+    local DB_USER=$DB_ROOT_USER
+    local DB_PASSWORD=$DB_ROOT_PASSWORD
+    
+    print_style "Checking if database $DB_NAME exists...\n" "info"
+    case "$DB_TYPE" in
+        mysql)
+            local DB_EXISTENCE_CHECK=$(execute_in_mysql_docker "SHOW DATABASES LIKE '$DB_NAME';")
+            if echo "$DB_EXISTENCE_CHECK" | grep -q "$DB_NAME"; then
+                print_style "Database $DB_NAME already exists.\n" "info"
+            else
+                print_style "Database $DB_NAME does not exist. Creating database...\n" "info"
+                execute_in_mysql_docker "CREATE DATABASE $DB_NAME;"
+                if [ $? -eq 0 ]; then
+                    print_style "Database $DB_NAME created successfully.\n" "success"
+                else
+                    print_style "Failed to create database $DB_NAME.\n" "danger"
+                    # exit 1
+                fi
+            fi
+
+            # Check if user exists
+            print_style "Checking if user $DB_USER exists...\n" "info"
+            local USER_EXISTENCE_CHECK=$(execute_in_mysql_docker "SELECT user FROM mysql.user WHERE user = '$DB_USER';")
+            if echo "$USER_EXISTENCE_CHECK" | grep -q "$DB_USER"; then
+                print_style "User $DB_USER already exists.\n" "info"
+                if [ -n "$DB_PASSWORD" ]; then
+                    print_style "Updating password for user $DB_USER...\n" "info"
+                    execute_in_mysql_docker "ALTER USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%'; FLUSH PRIVILEGES;"
+                    if [ $? -eq 0 ]; then
+                        print_style "Password for user $DB_USER updated successfully.\n" "success"
+                    else
+                        print_style "Failed to update password for user $DB_USER.\n" "danger"
+                        # exit 1
+                    fi
+                fi
+            else
+                print_style "User $DB_USER does not exist. Creating user...\n" "info"
+                execute_in_mysql_docker "CREATE USER '$DB_USER'@'%' IDENTIFIED BY '$DB_PASSWORD'; GRANT ALL PRIVILEGES ON $DB_NAME.* TO '$DB_USER'@'%'; FLUSH PRIVILEGES;"
+                if [ $? -eq 0 ]; then
+                    print_style "User $DB_USER created and granted privileges successfully.\n" "success"
+                else
+                    print_style "Failed to create user $DB_USER or grant privileges.\n" "danger"
+                    # exit 1
+                fi
+            fi
+            ;;
+        # Add cases for other database types like postgres, sqlite, etc.
+        *)
+            print_style "Unsupported database type: $DB_TYPE\n" "danger"
+            # exit 1
+            ;;
+    esac
+}
+
+# Function to execute MySQL commands in the remote Docker container
+execute_in_mysql_docker() {
+    local command="$1"
+    
+    # Retry up to 10 times to check if MySQL is ready
+    local attempt=1
+    local max_attempts=3
+    while ! docker-compose -f $LOCAL_DOCKER_PATH_HOST/docker-compose.yml exec -T mysql sh -c "mysql -u$DB_ROOT_USER -p$DB_ROOT_PASSWORD -e \"$command\"" 2>/dev/null; do
+        if [ $attempt -ge $max_attempts ]; then
+            echo "❌ MySQL connection failed after $max_attempts attempts. Please check your credentials or MySQL container status."
+            return 1
+        fi
+        echo "⏳ Waiting for MySQL to be ready... Attempt $attempt of $max_attempts"
+        sleep 3
+        ((attempt++))
+    done
+    return 0
 }
 
 configure_laravel_env() {
