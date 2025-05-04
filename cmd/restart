@@ -1,4 +1,4 @@
 #!/bin/bash
 # Restart all services
-echo "Running to restart all services: docker-compose -f ../Docker/docker-compose.yml stop && docker-compose -f ../Docker/docker-compose.yml up -d workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor"
-docker-compose -f ../Docker/docker-compose.yml stop && docker-compose -f ../Docker/docker-compose.yml up -d workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor
+echo "Running to restart all services: docker-compose -f ../Docker/docker-compose.yml stop && docker-compose -f ../Docker/docker-compose.yml up -d workspace nginx php-fpm php-worker mysql phpmyadmin redis redis-webui swagger-ui swagger-editor"
+docker-compose -f ../Docker/docker-compose.yml stop && docker-compose -f ../Docker/docker-compose.yml up -d workspace nginx php-fpm php-worker mysql phpmyadmin redis redis-webui swagger-ui swagger-editor
