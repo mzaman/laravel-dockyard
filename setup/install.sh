@@ -16,7 +16,7 @@ fi
 REPOSITORY_URL="git@github.com:mzaman/laravel-boilerplate.git"
 REPOSITORY_BRANCH="master"
 DEFAULT_APP_CODE_RELATIVE_PATH="web"
-DEFAULT_DOCKER_SERVICES=(workspace nginx php-fpm php-worker mysql phpmyadmin redis swagger-ui swagger-editor)
+DEFAULT_DOCKER_SERVICES=(mysql workspace nginx php-fpm php-worker phpmyadmin redis redis-webui swagger-ui swagger-editor)
 DEFAULT_DB_ROOT_USER="root"
 DEFAULT_DB_ROOT_PASSWORD="root"
 DEFAULT_DB_NAME="laravel_dockyard"

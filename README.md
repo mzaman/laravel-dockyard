@@ -1,4 +1,4 @@
-# Laravel Dockerized Environment
+# Laravel Dockyard : Laravel Dockerized Environment
 
 This project provides a streamlined Docker-based development environment for Laravel using Docker. It includes setup scripts and handy Docker shortcut commands to simplify local development.
 
@@ -118,7 +118,6 @@ Run the setup script:
 
 ```bash
 chmod +x Setup/install.sh && ./Setup/install.sh
-./install.sh
 ```
 
 ### 4. Edit the `/etc/hosts` file
@@ -210,15 +209,23 @@ Please see the [Scripts File](SCRIPTS.md) for more information.
 
 **Web URLs:**
 
-- [Web](http://web.test)
+- Frontend: [http://web.test](http://web.test)
 - PhpMyAdmin: [http://localhost:8081](http://localhost:8081)
 - Host: `mysql`
 - Username: `root`
 - Password: `root`
 
-**Swagger Test Form:** [http://localhost:5555](http://localhost:5555)
+**Swagger test form:** [http://localhost:5555](http://localhost:5555)
 
 **Swagger source file location:** `Setup/swagger/swagger.yaml`
 
 **Swagger Editor:** [http://localhost:5151](http://localhost:5151)
 
+## REDIS UI
+URL: [http://localhost:9987](http://localhost:9987)
+- Username: `laradock`
+- Password: `laradock`
+
+## License
+
+MIT
