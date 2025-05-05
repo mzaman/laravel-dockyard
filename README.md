@@ -189,7 +189,7 @@ cd cmd
 To populate the database with dummy data, run the following command from the `cmd` directory:
 
 ```bash
-./art migrate:refresh --seed
+./art db:seed
 ```
 
 ### Clearing Cached News
